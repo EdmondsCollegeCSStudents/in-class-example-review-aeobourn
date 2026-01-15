@@ -1,1 +1,973 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+
+	<style>
+
+		body {
+			font-family: Verdana, Helvetica, Arial, sans-serif;
+		}
+
+		.instructions {
+			clear:  both;
+		}
+
+		.title {
+			font-size: 8pt;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		.gencourse {
+			rx: 10;
+			fill: #89ABBC;
+			stroke-width: 5;
+			stroke: #004871;
+		}
+
+		.course:hover > * {
+			fill: rgba(255, 200, 200);
+			/*stroke: black;
+			stroke-width: 5; */
+			opacity: 0.5;
+		}
+
+		.required {
+			stroke: rgb(176, 0, 96);
+			fill:  rgba(176, 0, 96, .5);
+		}
+
+		.option {
+			stroke:  rgb(225, 91, 19);
+			fill:  rgba(225, 91, 19, .5);
+		}
+
+		.optionCs {
+			stroke: rgb(100, 140, 26);
+			fill: rgba(100, 140, 26, .5);
+		}
+
+		.optionMult {
+			stroke: rgb(100, 140, 26);
+			fill: rgba(100, 140, 26, .5);
+			stroke-radius: 2px; 
+		}
+
+		.hide {
+			display:  none;
+		}
+
+		.optionSci {}
+
+		.changed {
+			stroke:  rgb(225, 91, 19);
+			fill:  rgba(225, 91, 19, .5);
+			/*stroke-radius: 2px; */
+
+		}
+
+		.courseNum {
+			font-size: 8pt;
+			
+		}
+
+		.courseNum:hover {
+			cursor:  pointer;
+		}
+
+		.arrow {
+			stroke: black;
+			stroke-width:  2;
+		}
+
+		.schools {
+			border-radius: 5px;
+			background-color: rgba(137, 171, 188, .2);
+			stroke-width: 5;
+			border: rgba(137, 171, 188, .2) 3px solid;
+			margin:  auto;
+			margin-top:  5px;
+			margin-bottom: 5px;
+			padding:  5px;
+			font-size: 12px;
+			/*align-content: stretch;
+			width: %;*/
+			min-width: 80px;
+			display:  block;
+
+		}
+
+		#schools {
+/*			width:  100%;
+			display: flex;
+			flex:  1;
+			justify-content: center;
+			flex-wrap:  wrap;
+			float:  left;*/
+		}
+
+		.oneof {
+			stroke-width: 2;
+			stroke:  purple;
+		/*	border: "black" 3px solid; */
+		}
+
+		.notneeded {
+			fill: #EEEEEE;
+			stroke: #DDDDDD;
+		}
+
+		.instructions {
+			margin:  2%;
+			font-size: 12px;
+		}
+
+		#selectedschool {
+			background-color: rgba(137, 171, 188, .8);
+		}
+
+		svg * { 
+			transform-box: fill-box;
+		}
+
+		svg {
+			  overflow: : scroll;
+			  float: left;
+			  border:  black solid 2px;
+		}
+
+		.left {
+			transform-origin: bottom right;
+  			transform: rotate(45deg);
+
+		}
+
+		.right {
+			transform-origin: bottom right;
+  			transform: rotate(315deg);
+
+		}
+
+		polygon {
+			stroke:  #555555;
+			stroke-width:  3;
+		}
+
+		#key {
+			width:  22%;
+			float: left;
+		}
+
+		.thumbnail {
+			border:  solid black 3px;
+		}
+
+		.schoolRequires {
+			background-color:  rgba(176, 0, 96, .5); /*rgba(137, 171, 188, .8);*/
+		}
+
+		.schoolOpt {
+			/*background-color: aqua;*/
+			border-color: rgb(100, 140, 26);
+			background-color: rgba(100, 140, 26, .5);
+		}
+
+		.schoolsSci {
+			border: rgb(225, 91, 19) solid 3px;
+			background-color:  rgba(225, 91, 19, .5);
+		}
+
+		.option {
+			stroke:  rgb(225, 91, 19);
+			fill:  rgba(225, 91, 19, .5);
+		}
+
+		.clickedCourse {
+			stroke: rgb(252, 186, 3);
+		}
+	</style>
+
+	<script>
+
+
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		var departments = {
+		        "Math": {
+		        	"offset" : 0,
+		        	"columns" : 3,
+		        	"courses" : {
+		        		"47" : {
+		        			"pre" : [],
+		        			"requiredFor" : "",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		        		}, 
+		        		"77" : {
+		        			"pre" : ["Math47"],
+		        			"requiredFor" : "",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		        		}, 
+		        		"87" : {
+		        			"pre" : ["Math77"],
+		        			"requiredFor" : "",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		        		}, 
+		        		"97" : {
+		        			"pre" : ["Math87"],
+		        			"requiredFor" : "",
+		        			"choiceFor" : "",
+		        			"side" : "left"
+		        		}, 
+		        		"&146" : {
+		        			"pre" : ["Math87", "English99"],
+		        			"requiredFor" : "68",
+		        			"choiceFor" : "",
+		        			"side" : "right"
+		        		},
+		        		"&141" : {
+		        			"pre" : ["Math97"],
+		        			"requiredFor" : "",
+		        			"choiceFor" : "",
+		        			"side" : "left"
+		        		}, 
+		        		"&142": {
+		        			"pre" : ["Math&141"],
+		        			"requiredFor" : "",
+		        			"choiceFor" : "",
+		        			"side" : "left"
+		        		},
+		        		"&151" : {
+		        			"pre" : ["Math&142"],
+		        			"requiredFor" : "ALL",
+		        			"choiceFor" : "",
+		        			"side" : "left"
+		        		}, 
+		        		"&152" : {
+		        			"pre" : ["Math&151"],
+		        			"requiredFor" : "ALL",
+		        			"choiceFor" : "",
+		        			"side" : "left"
+		        		}, 
+		        		"&153" : {
+		        			"pre" : ["Math&152"],
+		        			"requiredFor" : "ALL",
+		        			"choiceFor" : "",
+		        			"side" : "left"
+		        		}, 
+		        		"&272" : {
+		        			"pre" : ["Math&153"],
+		        			"requiredFor" : "0",
+		        			"choiceFor" : "",
+		        			"side" : "left"
+		        		},
+		        		"&254" : {
+		        			"pre" : ["Math&153"],
+		        			"requiredFor" : "ALL",
+		        			"choiceFor" : "",
+		        			"side" : "right"
+		        		}
+		        	}
+		        },
+				"English": {
+		            "offset" : 0,
+		            "columns" : 2,
+		            "courses" : {
+		            	"93" : {
+		            		"pre" : [],
+		            		"requiredFor" : "",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		            	},
+		            	"99" : {
+		            		"pre" : ["English93"],
+		            		"requiredFor" : "",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		            	}, 
+		            	"&101" : {
+		            		"pre" : ["English99"],
+		            		"requiredFor" : "ALL",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		            	}, 
+		            	"&235" : {
+		            		"pre" : ["English&101"],
+		            		"requiredFor" : "ALL",
+		        			"choiceFor" : "",
+		        			"side" : "left"
+		            	}, 
+		            	"&102" : {
+		            		"pre" : ["English&101"],
+		            		"requiredFor" : "0",
+		        			"choiceFor" : "",
+		        			"side" : "right"
+		            	}
+		            }
+		        },
+		        "Computer Science": {
+		        	"offset" : 4,
+		        	"columns" : 2,
+		        	"courses" : {
+		        		"115" : {
+		        			"pre" : ["Math97"],
+		        			"requiredFor" : "",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		        		}, 
+		        		"131" : {
+		        			"pre" : ["Computer Science115"],
+		        			"requiredFor" : "4A",
+		        			"choiceFor" : "0123569BCDE",
+		        			"side" : "left"
+		        		}, 
+		        		"132" : {
+		        			"pre" : ["Computer Science131"],
+		        			"requiredFor" : "4A",
+		        			"choiceFor" : "0123569BCDE",
+		        			"side" : "left"
+		        		}, 
+		        		"133" : {
+		        			"pre" : ["Computer Science132"],
+		        			"requiredFor" : "4A",
+		        			"choiceFor" : "0123569BCDE",
+		        			"side" : "left"
+		        		},
+		        	
+		        		"141" : {
+		        			"pre" : ["Computer Science115"],
+		        			"requiredFor" : "78",
+		        			"choiceFor" : "0123569BCDE",
+		        			"side" : "right"
+		        		},
+		        		"142" : {
+		        			"pre" : ["Computer Science141"],
+		        			"requiredFor" : "78",
+		        			"choiceFor" : "0123569BCDE",
+		        			"side" : "right"
+		        		},
+		        		"143" : {
+		        			"pre" : ["Computer Science142"],
+		        			"requiredFor" : "78",
+		        			"choiceFor" : "0123569BCDE",
+		        			"side" : "right"
+		        		}
+		        	}
+		        },
+		        "Physics": {
+		        	"offset" : 7,
+		        	"columns" : 2,
+		        	"courses" : {
+		        		"&221" : {
+		        			"pre" : ["English&101", "Math&151"],
+		        			"requiredFor" : "ALL",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		        		}, 
+		        		"&222" : {
+		        			"pre" : ["Physics&221", "Math&152"],
+		        			"requiredFor" : "ALL",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		        		}, 
+		        		"&223" : {
+		        			"pre" : ["Physics&222"],
+		        			"requiredFor" : "129ABCD",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		        		}
+		        	}
+		        }, 
+		        "Philosophy": {
+		        	"offset" : 0,
+		        	"columns" : 1,
+		        	"courses" : {
+		        		"&101" : {
+		        			"pre" : [],
+		        			"requiredFor" : "1",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		        		}, 
+		        		"212*" : {
+		        			"pre" : [],
+		        			"requiredFor" : "01",
+		        			"choiceFor" : "",
+		        			"side" : "center",
+		        			"here" : "no"
+		        		}
+		        	}
+		        },
+		        "Comm.": {
+		        	"offset" : 2,
+		        	"columns" : 1,
+		        	"courses" : {
+		        		"&101" : {
+		        			"pre" : ["English&101"],
+		        			"requiredFor" : "1D",
+		        			"choiceFor" : "",
+		        			"side" : "center"
+		        		}
+		        	}
+		        },
+		        "Geology": {
+		        	"offset" : 4,
+		        	"columns" : 1,
+		        	"courses" : {
+		        		"&101" : {
+		        			"pre" : ["English&101", "Math87"],
+		        			"requiredFor" : "",
+		        			"choiceFor" : "3459ABC",
+		        			"side" : "center"
+		        		}
+		        	}
+		        },
+		        "Biology": {
+		        	"offset": 4,
+		        	"columns": 1,
+		        	"courses": {
+		        		"&211" : {
+		        			"pre" : ["English&101", "Math87"],
+		        			"requiredFor" : "",
+		        			"choiceFor" : "3459ABC",
+		        			"side" : "center"
+		        		}
+		        	}
+		        }, 
+		        "Env. Sci.": {
+		        	"offset": 4,
+		        	"columns": 1,
+		        	"courses": {
+		        		"&101" : {
+		        			"pre" : ["English&101", "Math87"],
+		        			"requiredFor" : "",
+		        			"choiceFor" : "3459ABC",
+		        			"side" : "center"
+		        		}
+		        	}
+		        }, 
+		        "Engineering": {
+		        	"offset" : 0,
+		        	"columns" : 1,
+		        	"courses" : {
+		        		"160*" : {
+		        			"pre" : [],
+		        			"requiredFor" : "0",
+		        			"choiceFor" : "",
+		        			"side" : "center",
+		        			"here" : "no"
+		        		}
+		        	}
+		        }
+		    };
+
+
+		    // biology also requires chem&121 or chem&161
+
+		var schools = {
+				"Central" : {
+					"long" : "Central Washington University",
+					"symbol" : "E"
+				}, 
+				"Eastern" : {
+					"long" : "Eastern Washington University",
+					"symbol" : "0"
+				}, 
+				"Gonzaga" : {
+					"long" : "Gonzaga University",
+					"symbol" : "1"
+				}, 
+				"Heritage" : {
+					"long" : "Heritage University",
+					"symbol" : "2"
+				}, 
+				"PLU" : {
+					"long" : "Pacific Lutheran University",
+					"symbol" : "3"
+				}, 
+				"SPU" : {
+					"long" : "Seattle Pacific University",
+					"symbol" : "4"
+				}, 
+				"SU" : {
+					"long" : "Seattle University",
+					"symbol" : "5"
+				}, 
+				"UWB" : {
+					"long" : "University of Washington Bothell",
+					"symbol" : "6"
+				}, 
+				"UWS" : {
+					"long" : "University of Washington Seattle",
+					"symbol" : "7"
+				}, 
+				"UWT" : {
+					"long" : "University of Washington Tacoma",
+					"symbol" : "8"
+				}, 
+				"WSUP" : {
+					"long" : "Washington State University Pullman",
+					"symbol" : "9"
+				}, 
+				"WSUT" : {
+					"long" : "Washington State University Tri-cities",
+					"symbol" : "A"
+				}, 
+				"WSUV" : {
+					"long" : "Washington State University Vancouver",
+					"symbol" : "B"
+				}, 
+				"Western" : {
+					"long" : "Western Washington University",
+					"symbol" : "C"
+				}, 
+				"Whitworth" : {
+					"long" : "Whitworth University",
+					"symbol" : "D"
+				}
+			};
+
+		var catagories = {
+				"gencourse" : {
+					"description" : "Edmonds classes",
+					"stroke" : "rgba(225, 91, 19, .5)", 
+					"fill" : "rgb(225, 91, 19)"
+				},
+				"required" : {
+					"description" : "Required for direct transfer to selected school",
+					"stroke" : "rgba(176, 0, 96, .5)", 
+					"fill" :  "rgb(176, 0, 96)"
+				},
+				"notneeded" : {
+					"description" : "Not required for direct transfer to selected school", 
+					"stroke" : "#DDDDDD",
+					"fill" :  "#EEEEEE"
+				},
+				"option" : {
+					"description" : "One of the set is a requirement",
+					"stroke" : "rgb(225, 91, 19)", 
+					"fill" : "rgba(225, 91, 19, .5)"
+				},
+				"optionMult" : {
+					"description" : "One series is a requirement",
+					"stroke" : "rgb(100, 140, 26)",
+					"fill" : "rgba(100, 140, 26, .5)"
+				}
+		};
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		var ALL = "0123456789ABCDE";
+		var WINDOW_WIDTH = window.innerWidth > 600 ? window.innerWidth : 1000;
+		var WINDOW_HEIGHT = window.innerHeight > 500 ? window.innerHeight : 700;
+		var BOX_WIDTH = WINDOW_WIDTH / 20; // 70;
+		var BOX_HEIGHT = 700 / 24; // 30;
+		var GAP = WINDOW_WIDTH / 50; // 25;
+		const svgns = "http://www.w3.org/2000/svg";
+		var SYMBOLS = "E0123456789ABCD";
+
+
+		window.onload = (function () {
+			// resize to fit window (css keeps from shrinking too much)
+			document.getElementById("canvas").setAttribute("width", WINDOW_WIDTH * .75);
+			document.getElementById("canvas").setAttribute("height", WINDOW_HEIGHT);
+			document.getElementById("canvas").setAttribute("viewBox", "0 0 " + WINDOW_WIDTH + " " + WINDOW_HEIGHT);
+
+			// draw rectangles and names for each class in each department
+			var leftX = - BOX_WIDTH * 3;
+			for (var key of Object.keys(departments)) {
+				leftX += (departments[key]["columns"] * (BOX_WIDTH + GAP));
+				drawSubject(leftX, key, departments[key]["offset"]);
+			}
+
+			// draw the prerequisite lines between courses
+			drawPrereqs();
+
+			// add the school buttons
+			for(var school of Object.keys(schools)) {
+				addSchool(school);
+			}
+
+			// add the key describing colors meaning
+			drawKey(leftX - 4 * (BOX_WIDTH + GAP));
+		});
+
+		function createGroup(x, y, width, height, dept) {
+			var circle13x = document.createElementNS(svgns, "rect");
+			circle13x.setAttribute("x", x);
+			circle13x.setAttribute("y", y);
+			circle13x.setAttribute("width", width);
+			circle13x.setAttribute("height", height);
+			circle13x.setAttribute("z-index", -1);
+			circle13x.classList.add(dept);
+			circle13x.classList.add("hide");
+
+			document.getElementById("canvas").appendChild(circle13x);
+		}
+
+		function addSchool(school) {
+			var button = document.createElement("button");
+			button.textContent = school;
+			button.classList.add("schools");
+			button.onclick = highlightReqs;
+			button.setAttribute("symbol", schools[school]["symbol"]);
+			button.style.width = (BOX_WIDTH * 2) + "px";
+
+			const attr = document.createAttribute("title");
+			attr.value = schools[school]["long"];
+			button.setAttributeNode(attr);
+			document.getElementById("schools").appendChild(button);
+		}
+
+		function hideAll(typeName, className) {
+			var items = document.querySelectorAll(typeName);
+			for (var i = 0; i < items.length; i++) {
+				items[i].classList.add(className);
+			}
+		}
+
+		function highlightReqs() {
+			removeAll();
+			var schools = document.querySelectorAll(".schools");
+			var old = document.getElementById("selectedschool");
+			if(old != null) {
+				old.id = "";
+			}
+			this.id = "selectedschool";
+			var classes = document.querySelectorAll(".course");
+			console.log(classes);
+			for (var i = 0; i < classes.length; i++) {
+				classes[i].classList.remove("required");
+				classes[i].classList.remove("option");
+				classes[i].classList.remove("notneeded");
+				
+				var isRequired = classes[i].getAttribute("requiredFor");
+				var isOption = classes[i].getAttribute("optionFor");
+				if(isRequired == "ALL" || isRequired.includes(this.getAttribute("symbol"))) {
+					classes[i].classList.add("required");
+				} else if (isOption != null && isOption.includes(this.getAttribute("symbol"))){
+					// classes[i].classList.add("option");
+					var prev = classes[i].previousSibling;
+					console.log(prev);
+					if(prev.classList.contains("optionCs")) {
+						//var allCS = document.querySelectorAll("optionCs");
+
+						// for (var doc in allCS) {
+						// 	doc.classList.remove("hide");
+						// }
+						//for(var i = 0; i < allCS.length; i++) {
+							classes[i].classList.add("required");
+							prev.classList.remove("hide");
+						//}
+					} else {
+						console.log("ttttheeeerrree");
+						//var allSci = document.querySelectorAll("optionSci");
+						//console.log(allSci);
+						// for (var doc in allSci) {
+						// 	console.log(doc);
+						  	classes[i].classList.add("changed");
+						// }
+					}
+					//classes[i].classList.remove("hide");
+					var x = parseInt(classes[i].getAttribute("x"));
+					var y = parseInt(classes[i].getAttribute("y"));
+					var width = parseInt(classes[i].getAttribute("width"));
+					var height = parseInt(classes[i].getAttribute("height"));
+				} else {
+					classes[i].classList.add("notneeded");
+				}
+			}
+
+		}
+
+		function drawSubject(leftX, course, start) {
+			var canvas = document.getElementById("canvas");
+			var rightX = BOX_WIDTH + leftX;
+			var centerX = leftX + (BOX_WIDTH / 2);
+  			
+  			var title = createText(leftX, 15, course, "title");
+  			canvas.appendChild(title);
+			
+			var shift = parseInt(start);
+			for (var name of Object.keys(departments[course]["courses"])) {
+				var yCoord = 40 + (BOX_HEIGHT + GAP) * shift;
+			//	var xCoord = 0;
+				// check if it has any prereqs
+				var prereq = departments[course]["courses"][name]["pre"];
+				if(prereq.length > 0) {
+					prereqOne = "" + prereq[0];
+					var preObj = document.getElementById(prereqOne);
+					var preY = preObj.getAttribute("y");
+					if(parseInt(preY) + BOX_HEIGHT + GAP > yCoord) {
+						yCoord = parseInt(preY) + BOX_HEIGHT + GAP;	
+					}
+				} 
+					
+				drawCourse(leftX, yCoord, course, name, shift - start);
+
+				// for(var i = 0; i < prereq.length; i++) {
+				// 	var prereqCurrent = "" + prereq[i];
+				// 	var preObj = document.getElementById(prereqCurrent);
+				// 	var preX = parseInt(preObj.getAttribute("x"));
+				// 	var side = departments[course]["courses"][name]["side"];
+				// 	var preSide = preObj.getAttribute("side");
+				// 	var arrowX = centerX;
+				// 	if(side != preSide) {
+				// 		if(side == "left") {
+				// 			arrowX += BOX_WIDTH / 2 + GAP / 2; // / 2 + GAP / 2;
+				// 		} else if (side == "right") {
+							
+				// 			arrowX -= BOX_WIDTH - GAP / 2; //leftX - (BOX_WIDTH / 2) - (GAP / 2);
+							
+				// 		}
+				// 	} else {
+				// 		arrowX = preX + BOX_WIDTH / 2;
+				// 	}
+				// 	drawArrow(preX + BOX_WIDTH / 2, yCoord - GAP, arrowX, yCoord);
+				//  }
+				if(departments[course]["courses"][name]["side"] == "center") {
+					shift++;
+				}
+			} 
+		} 
+
+
+		function drawPrereqs() {
+			for (var course of Object.keys(departments)) {
+				for (var name of Object.keys(departments[course]["courses"])) {
+					console.log(course + "------" + name);
+					var prereq = departments[course]["courses"][name]["pre"];
+					
+					var current = document.getElementById(course + "" + name);
+					var currentX = parseInt(current.getAttribute("x"));
+					var currentY = parseInt(current.getAttribute("y"));
+
+					for(var i = 0; i < prereq.length; i++) {
+						var prereqCurrent = "" + prereq[i];
+						console.log("+++++++" + prereqCurrent);
+						var preObj = document.getElementById(prereqCurrent);
+						var preX = parseInt(preObj.getAttribute("x"));
+						var preY = parseInt(preObj.getAttribute("y"));
+						var side = departments[course]["courses"][name]["side"];
+						var preSide = preObj.getAttribute("side");
+						var arrowX = currentX + BOX_WIDTH / 2;
+						if(side == preSide) {
+							arrowX = currentX + BOX_WIDTH / 2;
+						}
+						console.log("x: " + (preX + BOX_WIDTH / 2) + " y: " + (preY + BOX_HEIGHT) + " x2: " + arrowX + " y2: " + currentY);
+						drawArrow(preX + BOX_WIDTH / 2, preY + BOX_HEIGHT, arrowX, currentY);
+					}
+						
+				}
+			} 
+		}
+
+
+		function drawArrow(xStart, yStart, xEnd, yEnd) {
+			var line = document.createElementNS(svgns, "line");
+			line.setAttribute("x1", xStart);
+			line.setAttribute("y1", yStart);
+			line.setAttribute("x2", xEnd);
+			line.setAttribute("y2", yEnd - 6);
+			line.setAttribute("marker-end", "url(#arrow)");
+			line.setAttribute("stroke", "#000");;
+			line.setAttribute("stroke-width", "1.5");
+			document.getElementById("canvas").appendChild(line);
+		}
+
+
+		// function drawLine(xStart, yStart, xEnd, yEnd, className) {
+		// 	var canvas = document.getElementById("canvas");
+		// 	var line =  document.createElementNS(svgns, "line");
+		// 	line.setAttribute("x1", xStart);
+  // 			line.setAttribute("y1", yStart);
+  // 			line.setAttribute("x2", xEnd);
+  // 			line.setAttribute("y2", yEnd);
+  // 			line.classList.add("arrow");
+  // 			line.style.transition = "all 2s";
+  // 			line.classList.add(className);
+  // 			canvas.appendChild(line);
+		// }
+
+		function drawCourse(x, y, dept, name, i) {
+  			// create and add box for course
+  			var canvas = document.getElementById("canvas");
+
+  			var side = departments[dept]["courses"][name]["side"];
+  			var myX = x + BOX_WIDTH / 2 + GAP / 2;
+  			if(side == "right") {
+  				myX = x - BOX_WIDTH / 2 - GAP / 2;
+  			} else if (side == "center") {
+  				myX = x;
+  			}
+  			var op = departments[dept]["courses"][name]["choiceFor"];
+  			if(op.length > 0) {
+  				var field = "optionSci";
+  				//console.log(JSON.stringify(dept));
+  				//console.log(JSON.stringify(dept) == "\"Computer Science\"");
+  				if(JSON.stringify(dept) == "\"Computer Science\"") {
+  					field = "optionCs";
+  				}
+  				createGroup(myX - 10, y - 10, BOX_WIDTH + 20, BOX_HEIGHT + 20, field);
+
+  			}
+
+	  		var course = createCourse(myX, y, BOX_WIDTH, BOX_HEIGHT, "course");
+			course.classList.add("gencourse");
+  		 	course.setAttribute("requiredFor", departments[dept]["courses"][name]["requiredFor"]);
+  		 	course.setAttribute("optionFor", departments[dept]["courses"][name]["choiceFor"]);
+  		 	course.setAttribute("side", side);
+  		 	course.id = dept + name;
+  			canvas.appendChild(course);
+
+  			// create and add number
+  			var text = createText(myX + BOX_WIDTH / 2 , y + BOX_HEIGHT / 2, name, "courseNum");
+  			canvas.appendChild(text);
+		}
+
+		// creates and returns a text node
+		function createText(x, y, courseName, className) {
+			var newText = document.createElementNS(svgns, "text");
+			newText.setAttributeNS(null, "x", x);     
+			newText.setAttributeNS(null, "y", y); 
+			newText.setAttributeNS(null, "font-size", "14");
+			newText.setAttributeNS(null, "dominant-baseline", "middle");
+			newText.setAttributeNS(null, "text-anchor", "middle");
+
+			var textNode = document.createTextNode(courseName);
+			newText.appendChild(textNode);
+			newText.classList.add(className);
+			newText.onclick = highlightSchools;
+			textNode.onclick = highlightSchools;
+			return newText;
+		}
+
+		// creates the colored rectangle representing each course and returns it
+		function createCourse(x, y, width, height, className, task) {
+			var course = document.createElementNS(svgns, "rect");
+			course.setAttribute("x", x);
+  			course.setAttribute("y", y);
+  			course.setAttribute("width", width);
+  			course.setAttribute("height", height);
+  			course.classList.add(className);
+  			course.onclick = highlightSchools;
+  			return course;
+		}
+
+
+		function drawKey(x) {
+			var count = 0;
+			for(var cat of Object.keys(catagories)) {
+				var colorBox =  document.createElementNS(svgns, "rect");
+				colorBox.setAttributeNS(null, "x", x); 
+				colorBox.setAttributeNS(null, "y", WINDOW_HEIGHT / 3 * 2 + (BOX_HEIGHT + GAP) * count);
+				colorBox.setAttributeNS(null, "width", BOX_HEIGHT);
+				colorBox.setAttributeNS(null, "height", BOX_HEIGHT);
+				colorBox.classList.add("gencourse");
+				colorBox.classList.add(cat);
+				document.getElementById("canvas").appendChild(colorBox);
+
+				var descrip = document.createElementNS(svgns, "text");
+				var textNode = document.createTextNode(catagories[cat]["description"]);
+
+				descrip.appendChild(textNode);
+				descrip.classList.add("title");
+				descrip.setAttributeNS(null, "x", x + BOX_HEIGHT * 2); 
+				descrip.setAttributeNS(null, "y", WINDOW_HEIGHT / 3 * 2 + (BOX_HEIGHT + GAP) * count + BOX_HEIGHT / 2);
+				descrip.setAttributeNS(null, "shape-outside", "content-box"); //WINDOW_WIDTH - (x + BOX_HEIGHT * 2));
+				document.getElementById("canvas").appendChild(descrip);
+				count++;
+			}
+		}
+
+		function highlightSchools() {
+			removeAll();
+			var symbol = this.getAttribute("requiredFor");
+			var node = this;
+			if(symbol == null) {
+				node = this.previousSibling;
+				symbol = node.getAttribute("requiredFor");
+			}
+			node.classList.add("clickedCourse");
+			var opSymbol = node.getAttribute("optionFor");
+			var schools = document.querySelectorAll(".schools");
+			console.log(opSymbol + "[[[[[");
+			for(var i = 0; i < schools.length; i++) {
+				//console.log("heeeerrree");
+				var currentSym = schools[i].getAttribute("symbol");
+				console.log(symbol + "----" + currentSym) 
+				console.log(node.parentElement);
+				var currentName = node.id + "";
+				console.log("++++++++++" + currentName);
+				if(symbol.includes(currentSym) || symbol == "ALL") {
+					console.log("here");
+					schools[i].classList.add("schoolRequires");
+				} else if(opSymbol.includes(currentSym) && currentName.includes("Computer")) {
+					console.log("there");
+					schools[i].classList.add("schoolOpt");
+				} else if(opSymbol.includes(currentSym) && (currentName.includes("Geology") || currentName.includes("Biology") || currentName.includes("Env"))) {
+					schools[i].classList.add("schoolsSci");
+				}
+			}
+		}
+
+		// clears all highlight colors from schools and courses and returns them
+		// to their default color
+		function removeAll() {
+			hideAll(".optionSci", "changed");
+			hideAll(".optionCs", "hide");
+			var last = document.querySelector(".clickedCourse");
+			if(last != null) {
+				last.classList.remove("clickedCourse");
+			}
+			var classes = document.querySelectorAll(".course");
+			for (var i = 0; i < classes.length; i++) {
+				classes[i].classList.remove("required");
+				classes[i].classList.remove("option");
+				classes[i].classList.remove("notneeded");
+			}
+			var schools = document.querySelectorAll(".schools");
+			for(var i = 0; i < schools.length; i++) {
+				schools[i].classList.remove("schoolRequires");
+				schools[i].classList.remove("schoolOpt");
+				schools[i].classList.remove("schoolsSci");
+			}
+		}
+
+	</script>
+
+
+</head>
+<body>
+	<svg id="canvas" width="1000" height="700">
+		<defs>
+			<marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+				<path d="M 0 0 L 10 5 L 0 10 z" />
+    		</marker>
+		</defs>
+	</svg>
+<div id="key">
+	<p class="instructions">
+		Click one of the school names below to highlight the courses required to transfer to it. 
+	</p>
+
+	<div id="schools"></div>
+</div>
+</body>
+</html>
+
+
+
+<!--
+TODO:
+	add another color for options? one for each group? get rid of backgrounds??
+	add click class get buttons highlighted that require
+	add prereqs from other subjects 
+
+	-->
